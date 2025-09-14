@@ -1,30 +1,21 @@
 /**
- * @title Animation
+ * @title BlendShape
  * @category Benchmark
  */
-
 import {
-  Animator,
-  AssetType,
-  Camera,
-  DirectLight,
-  GLTFResource,
-  Vector3,
   WebGLEngine,
+  GLTFResource,
+  Camera,
+  Animator,
+  Vector3,
+  DirectLight,
 } from "@galacean/engine";
 
-// Create engine object
-WebGLEngine.create({
-  canvas: "canvas",
-  graphicDeviceOptions: { powerPreference: "high-performance" },
-}).then((engine) => {
+WebGLEngine.create({ canvas: "canvas" }).then(engine => {
   engine.canvas.resizeByClientSize();
 
-  // Create root entity and get scene
   const scene = engine.sceneManager.activeScene;
-  const rootEntity = scene.createRootEntity();
-  scene.ambientLight.diffuseSolidColor.set(1, 1, 1, 1);
-  scene.ambientLight.diffuseIntensity = 0;
+  const rootEntity = scene.createRootEntity("root");
 
   // Create camera.
   const cameraEntity = rootEntity.createChild("Camera");
@@ -39,16 +30,11 @@ WebGLEngine.create({
   directLight.intensity = 0.6;
   directLight.direction.set(0, -0.5, -1.0);
 
-  console.time("load");
-  // Load resources and add models.
   engine.resourceManager
-    .load<GLTFResource>({
-      url: "https://mdn.alipayobjects.com/rms/afts/file/A*DVfMRKjm6bMAAAAAAAAAAAAAARQnAQ/HVGirl.glb",
-      type: AssetType.GLTF,
-    })
-    .then((glTF) => {
-      const model = glTF.instantiateSceneRoot();
-      model.transform.setScale(0.0005, 0.0005, 0.0005);
+    .load("https://mdn.alipayobjects.com/oasis_be/afts/file/A*3WpzTqforh4AAAAAAAAAAAAADkp5AQ/HVGirl_BS_Root.glb")
+    .then((gltf) => {
+      const model = (gltf as GLTFResource).instantiateSceneRoot();
+      model.transform.setScale(0.5, 0.5, 0.5);
 
       for (let i = 0; i < 15; i++) {
         for (let j = 0; j < 15; j++) {
@@ -59,13 +45,11 @@ WebGLEngine.create({
           transform.position.x = -2.4 * 1.8 + i * 0.6;
           transform.position.z = -2.4 * 2 + j * 0.6;
 
-          modelClone.getComponent(Animator).play(glTF.animations[1].name,undefined,Math.random());
+          const anmator = modelClone.getComponent(Animator);
+          anmator.play("Samba", undefined, Math.random());
         }
       }
-
-      console.timeEnd("load");
     });
 
-  // Run engine
   engine.run();
 });

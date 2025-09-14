@@ -4,23 +4,29 @@ const searchBarDOM = document.getElementById("searchBar");
 const iframe = document.getElementById("iframe");
 const items = []; // itemDOM,label
 
-const platforms = ["galacean", "three", "babylon"];
+const platforms = ["galacean", "three", "babylon", "pixi"];
 
-const url = new URL(window.location.href);
+let url = new URL(window.location.href);
 const platform = url.searchParams.get("platform") ?? "galacean";
 
 platforms.splice(platforms.indexOf(platform), 1);
 
 const button1 = document.getElementById("button1");
 const button2 = document.getElementById("button2");
+const button3 = document.getElementById("button3");
 button1.innerText = platforms[0];
 button2.innerText = platforms[1];
+button3.innerText = platforms[2];
 button1.addEventListener("click", () => {
   url.searchParams.set("platform", platforms[0]);
   window.location.href = url.toString();
 });
 button2.addEventListener("click", () => {
   url.searchParams.set("platform", platforms[1]);
+  window.location.href = url.toString();
+});
+button3.addEventListener("click", () => {
+  url.searchParams.set("platform", platforms[2]);
   window.location.href = url.toString();
 });
 
@@ -74,18 +80,24 @@ import(`./mpa/${platform}/.demoList.json`).then(({ default: demoList }) => {
   }
 
   function clickItem(itemDOM) {
+    console.log("on hash change");
     window.location.hash = `#mpa/${itemDOM.title}`;
+    url = new URL(window.location.href);
   }
 
   function onHashChange() {
     const hashPath = window.location.hash.split("#")[1];
     const labelSrc = window.location.hash.split("#mpa/")[1];
+
     if (!hashPath || !items.find((item) => item.src === labelSrc)) {
       clickItem(items[0].itemDOM);
       return;
     }
 
-    iframe.src = "/mpa" + "/" + platform + "/" + labelSrc + ".html";
+    const prefix =
+      window.location.href.indexOf("/benchmark/") > -1 ? "/benchmark" : "";
+
+    iframe.src = prefix + "/mpa/" + platform + "/" + labelSrc + ".html";
 
     items.forEach(({ itemDOM }) => {
       const itemPath = `mpa/${platform}/${itemDOM.title}`;
@@ -95,6 +107,15 @@ import(`./mpa/${platform}/.demoList.json`).then(({ default: demoList }) => {
         itemDOM.classList.remove("active");
       }
     });
+
+    function onOpenClick() {
+      const prefix =
+        window.location.href.indexOf("/benchmark/") > -1 ? "/benchmark" : "";
+
+      window.open(prefix + "/mpa/" + platform + "/" + labelSrc + ".html");
+    }
+
+    document.getElementById("open").addEventListener("click", onOpenClick);
   }
 
   window.onhashchange = onHashChange;
